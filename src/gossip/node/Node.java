@@ -1,6 +1,6 @@
-package com.gb.gossip.node;
+package gossip.node;
 
-import com.gb.gossip.config.GossipConfig;
+import gossip.config.GossipConfig;
 
 import java.time.Duration;
 import java.io.Serializable;

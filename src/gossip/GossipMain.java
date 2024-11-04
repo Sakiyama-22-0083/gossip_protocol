@@ -1,7 +1,7 @@
-package com.gb.gossip;
+package gossip;
 
-import com.gb.gossip.config.GossipConfig;
-import com.gb.gossip.service.GossipService;
+import gossip.config.GossipConfig;
+import gossip.service.GossipService;
 
 import java.time.Duration;
 import java.io.FileWriter;
@@ -65,6 +65,7 @@ public class GossipMain {
      */
     private static void resetCSVFile(String file) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("");
         } catch (IOException e) {
             System.err.println("エラーが発生しました: " + e.getMessage());
         }

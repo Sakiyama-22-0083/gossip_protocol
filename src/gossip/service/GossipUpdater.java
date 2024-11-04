@@ -1,4 +1,4 @@
-package com.gb.gossip.service;
+package gossip.service;
 
 import java.net.InetSocketAddress;
 

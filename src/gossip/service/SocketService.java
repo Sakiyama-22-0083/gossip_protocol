@@ -1,6 +1,6 @@
-package com.gb.gossip.service;
+package gossip.service;
 
-import com.gb.gossip.node.Node;
+import gossip.node.Node;
 
 import java.io.*;
 import java.net.DatagramPacket;

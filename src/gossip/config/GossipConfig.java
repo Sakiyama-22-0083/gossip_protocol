@@ -1,4 +1,4 @@
-package com.gb.gossip.config;
+package gossip.config;
 
 import java.time.Duration;
 import java.io.Serializable;

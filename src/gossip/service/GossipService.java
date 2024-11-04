@@ -1,7 +1,7 @@
-package com.gb.gossip.service;
+package gossip.service;
 
-import com.gb.gossip.config.GossipConfig;
-import com.gb.gossip.node.Node;
+import gossip.config.GossipConfig;
+import gossip.node.Node;
 
 import java.util.List;
 import java.io.FileWriter;
