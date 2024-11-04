@@ -1,3 +1,1 @@
-# gossip
-
-A simple implementation of gossip protocol
+# gossip_protocol
