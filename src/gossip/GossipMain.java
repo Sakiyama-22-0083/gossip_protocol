@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
  * メインクラス
  */
 public class GossipMain {
-    private static String csvFile = "output.csv";
+    private static String csvFile = "Log/output.csv";
 
     public static void main(String[] args) {
         // ゴシッププロトコル設定
@@ -28,7 +28,7 @@ public class GossipMain {
         // 最初のノードをネットワークに追加する
         GossipService initialNode = new GossipService(
                 new InetSocketAddress("127.0.0.1", 9090),
-                gossipConfig);
+                gossipConfig, csvFile);
 
         initialNode.start();
         resetCSVFile(csvFile);
@@ -39,13 +39,13 @@ public class GossipMain {
             GossipService gossipService = new GossipService(
                     new InetSocketAddress("127.0.0.1", 9090 + i),
                     new InetSocketAddress("127.0.0.1", 9090 + i - 1),
-                    gossipConfig);
+                    gossipConfig, csvFile);
             gossipService.start();
             gossipServices.add(gossipService);
         }
         // 3秒間通信
         try {
-            Thread.sleep(3000);
+            Thread.sleep(6000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

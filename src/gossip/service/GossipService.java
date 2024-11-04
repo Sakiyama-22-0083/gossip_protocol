@@ -29,7 +29,8 @@ public class GossipService {
     private GossipUpdater onFailedMember = null;
     private GossipUpdater onRemovedMember = null;
     private GossipUpdater onRevivedMember = null;
-    private String csvFile = "output.csv";
+    private String mainCSV;
+    private String nodeCSV;
 
     /**
      * 最初のノードのコンストラクタ
@@ -37,10 +38,11 @@ public class GossipService {
      * @param inetSocketAddress
      * @param gossipConfig
      */
-    public GossipService(InetSocketAddress inetSocketAddress, GossipConfig gossipConfig) {
+    public GossipService(InetSocketAddress inetSocketAddress, GossipConfig gossipConfig, String csvFile) {
         this.inetSocketAddress = inetSocketAddress;
         this.gossipConfig = gossipConfig;
         this.socketService = new SocketService(inetSocketAddress.getPort());
+        this.mainCSV = csvFile;
         // まだ登録されていなければ自身のノードを配列に追加する
         self = new Node(inetSocketAddress, 0, gossipConfig);
         nodes.putIfAbsent(self.getUniqueId(), self);
@@ -56,8 +58,9 @@ public class GossipService {
      */
     public GossipService(InetSocketAddress listeningAddress,
             InetSocketAddress targetAddress,
-            GossipConfig gossipConfig) {
-        this(listeningAddress, gossipConfig);
+            GossipConfig gossipConfig,
+            String csvFile) {
+        this(listeningAddress, gossipConfig, csvFile);
         // 最初に接続するターゲットノードを配列に追加する
         Node initialTarget = new Node(targetAddress, 0, gossipConfig);
         nodes.putIfAbsent(initialTarget.getUniqueId(), initialTarget);
@@ -67,6 +70,9 @@ public class GossipService {
      * ゴシッププロトコルに必要な各スレッドを起動するメソッド
      */
     public void start() {
+        nodeCSV = "Log/" + inetSocketAddress.getPort() + ".csv";
+        resetCSVFile(nodeCSV);
+
         startSenderThread();
         startReceiverThread();
         startFailureDetectionThread();
@@ -340,11 +346,10 @@ public class GossipService {
                 // getFailedMembers().forEach(node -> System.out.println(
                 // "Health status: " + node.getHostName() + ":" + node.getPort() + "- failed"));
 
-                System.out.println("Health status: " + inetSocketAddress.getHostName() + ":"
-                        + inetSocketAddress.getPort() + ", " + self.hasFailed());
-
-                writeData(inetSocketAddress.getHostName() + "," + inetSocketAddress.getPort()
-                        + "," + self.hasFailed());
+                String data = inetSocketAddress.getHostName() + ","
+                        + inetSocketAddress.getPort() + "," + self.hasFailed();
+                System.out.println(data);
+                writeData(mainCSV, data);
 
                 try {
                     Thread.sleep(frequency);
@@ -355,8 +360,43 @@ public class GossipService {
         }).start();
     }
 
-    private void writeData(String data) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile, true))) {
+    private void setEventHandler() {
+        // イベントハンドラの設定
+        setOnNewNodeHandler((inetSocketAddress) -> {
+            String csvData = "Connected to " + inetSocketAddress.getHostName()
+                    + ":" + inetSocketAddress.getPort();
+            System.out.println(csvData);
+            writeData(nodeCSV, csvData);
+        });
+        setOnFailedNodeHandler((inetSocketAddress) -> {
+            String csvData = "Node " + inetSocketAddress.getHostName()
+                    + ":" + inetSocketAddress.getPort() + " failed";
+            System.out.println(csvData);
+            writeData(nodeCSV, csvData);
+        });
+        setOnRemoveNodeHandler((inetSocketAddress) -> {
+            String csvData = "Node " + inetSocketAddress.getHostName()
+                    + ":" + inetSocketAddress.getPort() + " removed";
+            System.out.println(csvData);
+            writeData(nodeCSV, csvData);
+        });
+        setOnRevivedNodeHandler((inetSocketAddress) -> {
+            String csvData = "Node " + inetSocketAddress.getHostName()
+                    + ":" + inetSocketAddress.getPort() + " revived";
+            System.out.println(csvData);
+            writeData(nodeCSV, csvData);
+        });
+    }
+
+    /**
+     * csvファイルにデータを書き込むメソッド
+     * 第1引数のcsvファイルに第2引数の内容を追記する．
+     *
+     * @param csvFail
+     * @param data
+     */
+    private void writeData(String csvFail, String data) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFail, true))) {
             writer.write(data);
             writer.newLine();
         } catch (IOException e) {
@@ -364,25 +404,17 @@ public class GossipService {
         }
     }
 
-    private void setEventHandler() {
-        // イベントハンドラの設定
-        setOnNewNodeHandler((inetSocketAddress) -> {
-            System.out.println("Connected to " +
-                    inetSocketAddress.getHostName() + ":"
-                    + inetSocketAddress.getPort());
-        });
-        setOnFailedNodeHandler((inetSocketAddress) -> {
-            System.out.println("Node " + inetSocketAddress.getHostName() + ":"
-                    + inetSocketAddress.getPort() + " failed");
-        });
-        setOnRemoveNodeHandler((inetSocketAddress) -> {
-            System.out.println("Node " + inetSocketAddress.getHostName() + ":"
-                    + inetSocketAddress.getPort() + " removed");
-        });
-        setOnRevivedNodeHandler((inetSocketAddress) -> {
-            System.out.println("Node " + inetSocketAddress.getHostName() + ":"
-                    + inetSocketAddress.getPort() + " revived");
-        });
+    /**
+     * csvファイルの内容をリセットするメソッド
+     *
+     * @param file
+     */
+    private static void resetCSVFile(String file) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("");
+        } catch (IOException e) {
+            System.err.println("エラーが発生しました: " + e.getMessage());
+        }
     }
 
 }

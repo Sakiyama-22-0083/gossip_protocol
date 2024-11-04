@@ -11,13 +11,16 @@ public class SocketService {
     private DatagramSocket datagramSocket;// UDP通信を行うソケットクラス
     private byte[] receivedBuffer = new byte[1024];// 受け取ったバイト配列
     private DatagramPacket receivePacket = new DatagramPacket(receivedBuffer, receivedBuffer.length);// 受け取ったパケット
+    private String csvFile;
 
     /**
      * 引数のポートのUDP通信ソケットを作成するコンストラクタ
      *
-     * @param portToListn
+     * @param portToListen
      */
     public SocketService(int portToListen) {
+        this.csvFile = "Log/" + portToListen + ".csv";
+
         try {
             // UDPソケットを作成
             datagramSocket = new DatagramSocket(portToListen);
@@ -59,8 +62,9 @@ public class SocketService {
                 // データをNodeオブジェクトとして読み込む
                 message = (Node) objectInputStream.readObject();
 
-                // System.out.println("Received gossip message from [" + message.getUniqueId() +
-                // "]");
+                String csvData = "Received gossip message from [" + message.getUniqueId() + "]";
+                writeData(csvFile, csvData);
+
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
@@ -82,7 +86,9 @@ public class SocketService {
     private byte[] getBytesToWrite(Node message) {
         ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 
-        // System.out.println("Writing message " + message.getNetworkMessage());
+        String csvData = "Writing message " + message.getNetworkMessage();
+        writeData(csvFile, csvData);
+
         try {
             ObjectOutput oo = new ObjectOutputStream(bStream);
             oo.writeObject(message);
@@ -107,12 +113,29 @@ public class SocketService {
         try {
             datagramSocket.send(packet);
 
-            // System.out.println("Sending gossip message to [" + target.getUniqueId() +
-            // "]");
+            String csvData = "Sending gossip message to [" + target.getUniqueId() + "]";
+            writeData(csvFile, csvData);
+
         } catch (IOException e) {
             System.out.println("Fatal error trying to send: " + packet + " to [" + target.getSocketAddress() + "]");
             e.printStackTrace();
             // target.setFailed(true);
+        }
+    }
+
+    /**
+     * csvファイルにデータを書き込むメソッド
+     * 第1引数のcsvファイルに第2引数の内容を追記する．
+     *
+     * @param csvFail
+     * @param data
+     */
+    private void writeData(String csvFail, String data) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFail, true))) {
+            writer.write(data);
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("エラーが発生しました: " + e.getMessage());
         }
     }
 
