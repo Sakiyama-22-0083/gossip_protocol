@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>680</x>
+      <y>870</y>
+      <w>380</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>SocketService
+--
+- datagramSocket: DatagramSocket
+- receivedBuffer: byte[]
+- receivePacket: DatagramPacket
+--
++ SocketService(portToListen: int)
++ sendGossip(node Node, message node): void
++ receiveGossip(): Node
+- getBytesToWrite(message: Node): byte[]
+- sendGossipMessage(target: Node, data: byte[]): void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>300</x>
+      <y>290</y>
+      <w>590</w>
+      <h>480</h>
+    </coordinates>
+    <panel_attributes>GossipService
+--
++ inetSocketAddress: InetSocketAddress 
+- socketService: SocketService
+- self: Node
+- node: ConcurrentHashMap&lt;String, Node&gt;
+- stopped: boolean
+- gossipConfig: GossipConfig
+- onNewMember: GossipUpdater
+- onFailedMember: GossipUpdater
+- onRemovedMember: GossipUpdater 
+- onRevivedMember: GossipUpdater
+--
++ GossipService(inetSocketAddress: InetSocketAddress, gossipConfig: GossipConfig)
++ start(): void
++ getAliveMembers(): ArrayList&lt;InetSocketAddress&gt;
++ getFailedMembers(): ArrayList&lt;InetSocketAddress&gt;
++ getAllMembers(): ArrayList&lt;InetSocketAddress&gt;
++ stop(): void
++ setOnNewNodeHandler(onNewMember: GossipUpdater): void
++ setOnFailedNodeHandler(onFailedMember: GossipUpdater): void
++ setOnRevivedNodeHandler(onRevivedMember: GossipUpdater): void
++ setOnRemoveNodeHandler(onRemovedMember: GossipUpdater): void
+- startSenderThread(): void
+- startReceiverThread(): void
+- startFailureDetectionThread(): void
+- sendGossipToRandomNode(): void
+- getRandomIndex(size: int): int
+- receivePeerMessage(): void
+- detectFailedNodes(): void
+- printNodes(): void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>140</y>
+      <w>190</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>GossipMain</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>870</y>
+      <w>630</w>
+      <h>370</h>
+    </coordinates>
+    <panel_attributes>Node
+--
+- address: InetSocketAddress
+- heartbeatSequenceNumber: long
+- lastUpdateTime: LocalDateTime
+- failed: boolean
+- config: GossipConfig
+--
++ Node(address: InetSocketAddress, initialSequenceNumber: long, config: GossipConfig)
++ setConfig(config: GossipConfig): void
++ getAddress(): String
++ getInetAddress(): InetAddress
++ getSocketAddress(): InetSocketAddress
++ getPort(): int
++ getUniqueId(): String
++ getSequenceNumber(): long
++ updateSequenceNumber(newSequenceNumber: long): void
++ hasFailed(): boolean
++ setFailed(failed: boolean): void
++ setLastUpdatedTime(): void
++ incrementSequenceNumber(): void
++ checkIfFailed(): void
++ shouldCleanup(): boolean
++ getNetworkMessage(): String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>160</y>
+      <w>340</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>320.0;10.0;320.0;70.0;10.0;70.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>920</x>
+      <y>290</y>
+      <w>510</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>GossipConfig
+--
++ failureTimeout: Duration
++ cleanupTimeout: Duration
++ updateFrequency: Duration
++ failureDetectionFrequency: Duration
++ peersToUpdatePerInterval: int
+--
++ GossipConfig(failureTimeout: Duration, cleanupTimeout: Duration,
+            updateFrequency: Duration, failureDetectionFrequency: Duration,
+            peersToUpdatePerInterval: int)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>300</x>
+      <y>760</y>
+      <w>310</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>290.0;10.0;290.0;60.0;10.0;60.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>800</y>
+      <w>320</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;300.0;20.0;300.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>890</x>
+      <y>210</y>
+      <w>320</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;300.0;20.0;300.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1080</x>
+      <y>870</y>
+      <w>390</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;interface&gt;&gt;
+GossipUpdater
+--
+--
+# update(inetSocketAddress: InetSocketAddress): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>870</x>
+      <y>800</y>
+      <w>420</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;400.0;20.0;400.0;70.0</additional_attributes>
+  </element>
+</diagram>
