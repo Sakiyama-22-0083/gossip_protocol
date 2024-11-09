@@ -11,7 +11,7 @@ public class SocketService {
     private DatagramSocket datagramSocket;// UDP通信を行うソケットクラス
     private byte[] receivedBuffer = new byte[1024];// 受け取ったバイト配列
     private DatagramPacket receivePacket = new DatagramPacket(receivedBuffer, receivedBuffer.length);// 受け取ったパケット
-    private String csvFile;
+    private String csvFilePath;
 
     /**
      * 引数のポートのUDP通信ソケットを作成するコンストラクタ
@@ -19,7 +19,7 @@ public class SocketService {
      * @param portToListen
      */
     public SocketService(int portToListen) {
-        this.csvFile = "log/" + portToListen + ".csv";
+        this.csvFilePath = "log/" + portToListen + ".csv";
 
         try {
             // UDPソケットを作成
@@ -63,7 +63,7 @@ public class SocketService {
                 message = (Node) objectInputStream.readObject();
 
                 String csvData = "Received gossip message from [" + message.getUniqueId() + "]";
-                writeData(csvFile, csvData);
+                writeData(csvFilePath, csvData);
 
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -87,7 +87,7 @@ public class SocketService {
         ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 
         String csvData = "Writing message " + message.getNetworkMessage();
-        writeData(csvFile, csvData);
+        writeData(csvFilePath, csvData);
 
         try {
             ObjectOutput oo = new ObjectOutputStream(bStream);
@@ -114,7 +114,7 @@ public class SocketService {
             datagramSocket.send(packet);
 
             String csvData = "Sending gossip message to [" + target.getUniqueId() + "]";
-            writeData(csvFile, csvData);
+            writeData(csvFilePath, csvData);
 
         } catch (IOException e) {
             System.out.println("Fatal error trying to send: " + packet + " to [" + target.getSocketAddress() + "]");
