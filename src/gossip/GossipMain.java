@@ -8,13 +8,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.net.InetSocketAddress;
 
 /**
  * メインクラス
  */
 public class GossipMain {
-    private static String csvFile = "Log/output.csv";
+    private static String csvFile = "log/output.csv";
 
     public static void main(String[] args) {
         // ゴシッププロトコル設定
@@ -63,8 +64,14 @@ public class GossipMain {
      *
      * @param file
      */
-    private static void resetCSVFile(String file) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+    private static void resetCSVFile(String filePath) {
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        // logディレクトリが存在しない場合，新たにディレクトリを作成する．
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs(); // ディレクトリを再帰的に作成
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write("");
         } catch (IOException e) {
             System.err.println("エラーが発生しました: " + e.getMessage());

@@ -19,7 +19,7 @@ public class SocketService {
      * @param portToListen
      */
     public SocketService(int portToListen) {
-        this.csvFile = "Log/" + portToListen + ".csv";
+        this.csvFile = "log/" + portToListen + ".csv";
 
         try {
             // UDPソケットを作成

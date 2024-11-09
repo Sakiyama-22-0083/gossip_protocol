@@ -70,7 +70,7 @@ public class GossipService {
      * ゴシッププロトコルに必要な各スレッドを起動するメソッド
      */
     public void start() {
-        nodeCSV = "Log/" + inetSocketAddress.getPort() + ".csv";
+        nodeCSV = "log/" + inetSocketAddress.getPort() + ".csv";
         resetCSVFile(nodeCSV);
 
         startSenderThread();
